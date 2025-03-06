@@ -35,6 +35,21 @@
             background: #ff4444;
             color: #000;
         }
+        #helpModal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #333;
+            padding: 20px;
+            border: 2px solid #ff4444;
+            display: none;
+            z-index: 10;
+        }
+        #helpModal button {
+            display: block;
+            margin: 10px auto 0;
+        }
     </style>
 </head>
 <body>
@@ -45,8 +60,24 @@
         <button onclick="startGame('medium')">Blobs (5x5)</button>
         <button onclick="startGame('hard')">Blobsey (7x7)</button>
         <button onclick="startGame('ultra')">Blobtacular (9x9)</button>
+        <button onclick="showHelp()">Help</button>
     </div>
     <canvas id="gameCanvas"></canvas>
+    <div id="helpModal">
+        <h2>Slime Eternal</h2>
+        <p>Guide your slime from the <strong>Start</strong> to an <strong>Exit</strong> in as few moves as possible!</p>
+        <p><strong>Controls:</strong><br>
+        - Click a tile to move<br>
+        - Arrow Keys or WASD to move</p>
+        <p><strong>Rules:</strong><br>
+        - You start with 3 moves<br>
+        - Each move shrinks your slime<br>
+        - Collect blobs for extra moves<br>
+        - Avoid traps (lava) or die<br>
+        - Grab coins for cosmetics<br>
+        - Reach an exit to advance!</p>
+        <button onclick="hideHelp()">Close</button>
+    </div>
     <script src="game.js"></script>
 </body>
 </html>
