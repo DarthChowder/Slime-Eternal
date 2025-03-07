@@ -1,7 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const tileSize = 60;
-let gridSize, player, movesLeft, exits, blobs, traps, obstacles, score, coins, startPos;
+let gridSize, player, movesLeft, exits, blobs, traps, obstacles, score, coins, startPos, maxMoves;
 
 const difficulties = {
     easy: { grid: 3, moves: 3 },
@@ -12,21 +12,24 @@ const difficulties = {
 
 function startGame(difficulty) {
     gridSize = difficulties[difficulty].grid;
+    maxMoves = difficulties[difficulty].moves; // Store max moves for reset
     canvas.width = gridSize * tileSize;
     canvas.height = gridSize * tileSize;
-    movesLeft = difficulties[difficulty].moves;
+    movesLeft = maxMoves;
     score = 0;
     coins = 0;
     document.getElementById('moves').textContent = movesLeft;
     document.getElementById('score').textContent = score;
     document.getElementById('coins').textContent = coins;
     initLevel({ x: 0, y: 0 });
-    showHelp(); // Show help on first start
+    showHelp();
 }
 
 function initLevel(lastExit) {
     startPos = { x: lastExit.x, y: lastExit.y };
     player = { x: lastExit.x, y: lastExit.y, size: 1.0, color: '#00ff00' };
+    movesLeft = maxMoves; // Reset moves to max each level
+    document.getElementById('moves').textContent = movesLeft;
     exits = [];
     blobs = [];
     traps = [];
@@ -69,13 +72,11 @@ function draw() {
         }
     }
 
-    // Draw start label
     ctx.fillStyle = '#00ff00';
     ctx.font = '12px Courier New';
     ctx.textAlign = 'center';
     ctx.fillText('Start', startPos.x * tileSize + tileSize / 2, startPos.y * tileSize + tileSize - 5);
 
-    // Draw obstacles and coins
     obstacles.forEach(o => {
         if (o.coin) {
             ctx.fillStyle = '#ffdd00';
@@ -100,7 +101,6 @@ function draw() {
         ctx.fill();
     });
 
-    // Draw exits with labels
     exits.forEach((e, i) => {
         ctx.fillStyle = '#ffff00';
         ctx.fillRect(e.x * tileSize + 10, e.y * tileSize + 10, tileSize - 20, tileSize - 20);
@@ -109,7 +109,6 @@ function draw() {
         ctx.fillText('Exit', e.x * tileSize + tileSize / 2, e.y * tileSize + tileSize / 2 + 4);
     });
 
-    // Draw player with white outline
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -155,7 +154,8 @@ function movePlayer(dx, dy) {
     if (exit) {
         score++;
         document.getElementById('score').textContent = score;
-        initLevel(exit);
+        initLevel(exit); // Moves reset here
+        return; // Exit early since initLevel handles drawing
     }
 
     if (movesLeft <= 0 || player.size <= 0) {
@@ -166,7 +166,6 @@ function movePlayer(dx, dy) {
     draw();
 }
 
-// Click-to-move
 canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = Math.floor((e.clientX - rect.left) / tileSize);
@@ -174,13 +173,11 @@ canvas.addEventListener('click', (e) => {
     const dx = x - player.x;
     const dy = y - player.y;
 
-    // Only allow movement one tile at a time (up, down, left, right)
     if (Math.abs(dx) + Math.abs(dy) === 1) {
         movePlayer(dx, dy);
     }
 });
 
-// Keyboard controls (Arrows + WASD)
 document.addEventListener('keydown', (e) => {
     switch (e.key) {
         case 'ArrowUp':
